@@ -21,9 +21,9 @@ export \
 # Install custom python package if requirements.txt is present
 install_requirements() {
     # Install custom python package if requirements.txt is present
-    if [[ -e "$AIRFLOW_HOME/dags/requirements.txt" ]]; then
+    if [[ -e "$AIRFLOW_HOME/requirements/requirements.txt" ]]; then
         echo "Installing requirements.txt"
-        pip3 install --user -r "$AIRFLOW_HOME/dags/requirements.txt"
+        pip3 install --user -r "$AIRFLOW_HOME/requirements/requirements.txt"
     fi
 }
 
@@ -70,6 +70,8 @@ case "$1" in
   local-runner)
     install_requirements
     airflow db init
+    ## Add connections
+    airflow connections add ${RO_MYSQL_CONN_ID} --conn-type 'mysql' --conn-schema ${RO_MYSQL_DB_NAME} --conn-login ${RO_MYSQL_CONN_USER} --conn-password ${RO_MYSQL_CONN_PASSWORD} --conn-host ${RO_MYSQL_CONN_HOST}
     if [ "$AIRFLOW__CORE__EXECUTOR" = "LocalExecutor" ] || [ "$AIRFLOW__CORE__EXECUTOR" = "SequentialExecutor" ]; then
       # With the "Local" and "Sequential" executors it should all run in one container.
       airflow scheduler &

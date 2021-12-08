@@ -13,9 +13,8 @@ services:
         volumes:
             - "${PWD}/db-data:/var/lib/postgresql/data"
 
-    local-runner:
-        image: amazon/mwaa-local:2.0.2
-        restart: always
+    resetdb:
+        image: amazon/mwaa-local:2.0
         depends_on:
             - postgres
         environment:
@@ -28,11 +27,8 @@ services:
         volumes:
             - ${PWD}/dags:/usr/local/airflow/dags
             - ${PWD}/plugins:/usr/local/airflow/plugins
+            - ${PWD}/requirements:/usr/local/airflow/requirements
+            - ${PWD}/local_mwaa/logs:/usr/local/airflow/logs
         ports:
             - "8080:8080"
-        command: local-runner
-        healthcheck:
-            test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
-            interval: 30s
-            timeout: 30s
-            retries: 3
+        command: resetdb

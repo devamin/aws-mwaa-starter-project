@@ -11,15 +11,18 @@ services:
                 max-size: 10m
                 max-file: "3"
         volumes:
-            - "${PWD}/db-data:/var/lib/postgresql/data"
+            - "${PWD}/local_mwaa/db-data:/var/lib/postgresql/data"
 
-    resetdb:
-        image: amazon/mwaa-local:2.0
+    local-runner:
+        image: amazon/mwaa-local:2.0.2
+        restart: always
         depends_on:
             - postgres
         environment:
             - LOAD_EX=n
             - EXECUTOR=Local
+        env_file:
+            - .env
         logging:
             options:
                 max-size: 10m
@@ -27,6 +30,14 @@ services:
         volumes:
             - ${PWD}/dags:/usr/local/airflow/dags
             - ${PWD}/plugins:/usr/local/airflow/plugins
+            - ${PWD}/requirements:/usr/local/airflow/requirements
+            - ${PWD}/local_mwaa/logs:/usr/local/airflow/logs
+
         ports:
-            - "8080:8080"
-        command: resetdb
+            - "8088:8080"
+        command: local-runner
+        healthcheck:
+            test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+            interval: 30s
+            timeout: 30s
+            retries: 3

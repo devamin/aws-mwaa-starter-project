@@ -2,5 +2,6 @@
 *.workspace
 dags/**/*.pyc
 /.idea
-/logs
-/db-data
+/local_mwaa/logs
+/local_mwaa/db-data
+.env

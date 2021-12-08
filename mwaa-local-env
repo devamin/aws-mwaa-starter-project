@@ -50,7 +50,7 @@ validate_prereqs() {
 }
 
 build_image() {
-   docker build --rm --compress -t amazon/mwaa-local:$AIRFLOW_VERSION ./docker
+   docker build --rm --compress -t amazon/mwaa-local:$AIRFLOW_VERSION ./local_mwaa/docker
 }
 
 case "$1" in
@@ -65,16 +65,16 @@ test-requirements)
      echo "Container amazon/mwaa-local:$AIRFLOW_VERSION not built. Building locally."
      build_image
    fi
-   docker run -v $(pwd)/dags:/usr/local/airflow/dags -it amazon/mwaa-local:$AIRFLOW_VERSION test-requirements
+   docker run --rm -v $(pwd)/requirements:/usr/local/airflow/requirements -it amazon/mwaa-local:$AIRFLOW_VERSION test-requirements
    ;;
 build-image)
    build_image
    ;;
 reset-db)
-   docker-compose -f ./docker/docker-compose-resetdb.yml up
+   docker-compose -f ./local_mwaa/docker/docker-compose-resetdb.yml up
    ;;
 start)
-   docker-compose -f ./docker/docker-compose-local.yml up
+   docker-compose -f ./local_mwaa/docker/docker-compose-local.yml up
    ;;
 help)
    display_help
